@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>K8s Multi-Pod App</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+        #root { width: 100%; max-width: 800px; }
+        h1 { color: #38bdf8; margin-bottom: 8px; }
+        .subtitle { color: #94a3b8; margin-bottom: 32px; }
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+        }
+        .card h2 { color: #38bdf8; margin-bottom: 12px; font-size: 1.1rem; }
+        .info-grid {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            gap: 8px 16px;
+        }
+        .info-grid .label { color: #94a3b8; font-weight: 600; }
+        .info-grid .value { color: #e2e8f0; }
+        .items-list { list-style: none; }
+        .items-list li {
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+        }
+        .items-list .item-name { color: #38bdf8; font-weight: 600; }
+        .items-list .item-desc { color: #94a3b8; font-size: 0.9rem; }
+        .status { display: inline-block; padding: 4px 12px; border-radius: 999px; font-size: 0.85rem; font-weight: 600; }
+        .status.ok { background: #065f46; color: #6ee7b7; }
+        .status.err { background: #7f1d1d; color: #fca5a5; }
+        .status.loading { background: #1e3a5f; color: #93c5fd; }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            margin-top: 12px;
+        }
+        button:hover { background: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <!-- React via CDN (keeps the project simple, no build step needed) -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        // Backend URL — injected at runtime or falls back to same-host /api
+        const API_BASE = window.__API_BASE__ || "/api";
+
+        function App() {
+            const [serverInfo, setServerInfo] = useState(null);
+            const [items, setItems] = useState([]);
+            const [backendStatus, setBackendStatus] = useState("loading");
+            const [error, setError] = useState(null);
+
+            const fetchData = async () => {
+                setBackendStatus("loading");
+                setError(null);
+                try {
+                    const [infoRes, itemsRes] = await Promise.all([
+                        fetch(`${API_BASE}/info`),
+                        fetch(`${API_BASE}/items`),
+                    ]);
+                    if (!infoRes.ok || !itemsRes.ok) throw new Error("Backend returned an error");
+                    const infoData = await infoRes.json();
+                    const itemsData = await itemsRes.json();
+                    setServerInfo(infoData);
+                    setItems(itemsData.items);
+                    setBackendStatus("ok");
+                } catch (err) {
+                    setError(err.message);
+                    setBackendStatus("err");
+                }
+            };
+
+            useEffect(() => { fetchData(); }, []);
+
+            return (
+                <div>
+                    <h1>Kubernetes Multi-Pod Application</h1>
+                    <p className="subtitle">React Frontend + Flask Backend on K8s</p>
+
+                    <div className="card">
+                        <h2>Backend Connection
+                            {" "}
+                            <span className={`status ${backendStatus}`}>
+                                {backendStatus === "ok" ? "Connected" : backendStatus === "loading" ? "Loading..." : "Error"}
+                            </span>
+                        </h2>
+                        {error && <p style={{color: "#fca5a5"}}>Error: {error}</p>}
+                        {serverInfo && (
+                            <div className="info-grid">
+                                <span className="label">Message:</span>
+                                <span className="value">{serverInfo.message}</span>
+                                <span className="label">Pod Hostname:</span>
+                                <span className="value">{serverInfo.hostname}</span>
+                                <span className="label">Timestamp:</span>
+                                <span className="value">{serverInfo.timestamp}</span>
+                                <span className="label">Version:</span>
+                                <span className="value">{serverInfo.version}</span>
+                            </div>
+                        )}
+                        <button onClick={fetchData}>Refresh (see pod routing)</button>
+                    </div>
+
+                    <div className="card">
+                        <h2>Items from Backend API</h2>
+                        <ul className="items-list">
+                            {items.map(item => (
+                                <li key={item.id}>
+                                    <span className="item-name">{item.name}</span>
+                                    <br />
+                                    <span className="item-desc">{item.description}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+    </script>
+</body>
+</html>

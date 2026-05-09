@@ -1,0 +1,89 @@
+Script started on 2026-05-09 16:30:29+05:00 
+[1m[36m=========================================================[0m
+[1m[36m  DDoS Protection Test Suite — K8s Gateway               [0m
+[1m[36m=========================================================[0m
+  Target: [1mhttp://192.168.49.2:30080[0m
+
+[1m[Pre-check] Verifying gateway is reachable...[0m
+[32mGateway is up.[0m
+
+[1m[36m--- Test 1: Normal Requests (Frontend + Backend via Gateway) ---[0m
+  GET /  (frontend): HTTP 200 [32mOK[0m
+  GET /api/info (backend): HTTP 200 [32mOK[0m
+  GET /api/items (backend): HTTP 200 [32mOK[0m
+  Backend pod serving request: [36mbackend-6b766f4979-86fpj[0m
+
+[1m[36m--- Test 2: Rapid-Fire Requests (Rate Limiting: 10r/s, burst 20) ---[0m
+Sending 50 rapid requests to the gateway...
+
+  Request  1: HTTP 200
+  Request  2: HTTP 200
+  Request  3: HTTP 200
+  Request  4: HTTP 200
+  Request  5: HTTP 200
+  Request  6: HTTP 200
+  Request  7: HTTP 200
+  Request  8: HTTP 200
+  Request  9: HTTP 200
+  Request 10: HTTP 200
+  Request 11: HTTP 200
+  Request 12: HTTP 200
+  Request 13: HTTP 200
+  Request 14: HTTP 200
+  Request 15: HTTP 200
+  Request 16: HTTP 200
+  Request 17: HTTP 200
+  Request 18: HTTP 200
+  Request 19: HTTP 200
+  Request 20: HTTP 200
+  Request 21: HTTP 200
+  Request 22: HTTP 200
+  Request 23: HTTP 200
+  Request 24: HTTP 200
+  Request 25: HTTP 200
+  Request 26: HTTP 200
+  Request 27: HTTP 200
+  Request 28: HTTP 200
+  Request 29: HTTP 200
+  Request 30: HTTP 200
+  Request 31: HTTP 200
+  Request 32: HTTP 200
+  Request 33: HTTP 200
+  Request 34: HTTP 200
+  Request 35: HTTP 200
+  Request 36: HTTP 200
+  Request 37: HTTP 200
+  Request 38: HTTP 200
+  Request 39: HTTP 200
+  Request 40: HTTP 200
+  Request 41: HTTP 200
+  Request 42: HTTP 200
+  Request 43: HTTP 429
+  Request 44: HTTP 429
+  Request 45: HTTP 429
+  Request 46: HTTP 429
+  Request 47: HTTP 200
+  Request 48: HTTP 200
+  Request 49: HTTP 200
+  Request 50: HTTP 200
+
+  [1mSummary:[0m
+    [32m200 (Served):       46[0m
+    [33m429 (Rate Limited): 4[0m
+  [32mPASS: Rate limiting is active — excess requests were rejected with 429.[0m
+
+[1m[36m--- Test 3: Concurrent Connections (Limit: 10 per IP) ---[0m
+Opening 30 concurrent connections...
+  [1mSummary:[0m
+    [32m200 (Served):       5[0m
+    [33m429 (Conn Limited): 25[0m
+
+[1m[36m--- Test 4: Bot Filtering (Malicious User-Agents) ---[0m
+  Empty User-Agent:   HTTP 200 [33mnot blocked[0m
+  sqlmap User-Agent:  HTTP 403 [32mBLOCKED[0m
+  nikto User-Agent:   HTTP 403 [32mBLOCKED[0m
+  Normal User-Agent:  HTTP 429 [33munexpected[0m
+
+[1m[36m--- Test 5: HTTP Method Restriction ---[0m
+
+Script done on 2026-05-09 16:30:30+05:00 [COMMAND_EXIT_CODE="52"]

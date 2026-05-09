@@ -1,0 +1,10 @@
+Script started on 2026-05-09 16:39:44+05:00 
+NAME                        READY   STATUS    RESTARTS   AGE     IP            NODE       NOMINATED NODE   READINESS GATES
+backend-85689c8775-22ml6    1/1     Running   0          2m34s   10.244.0.15   minikube   <none>           <none>
+backend-85689c8775-zddq8    1/1     Running   0          2m28s   10.244.0.18   minikube   <none>           <none>
+frontend-564f5bfbb5-77v96   1/1     Running   0          2m17s   10.244.0.20   minikube   <none>           <none>
+frontend-564f5bfbb5-7pplq   1/1     Running   0          2m33s   10.244.0.16   minikube   <none>           <none>
+gateway-7f858f8445-q7mfc    1/1     Running   0          2m33s   10.244.0.17   minikube   <none>           <none>
+gateway-7f858f8445-sbccx    1/1     Running   0          2m17s   10.244.0.19   minikube   <none>           <none>
+
+Script done on 2026-05-09 16:39:45+05:00 [COMMAND_EXIT_CODE="0"]

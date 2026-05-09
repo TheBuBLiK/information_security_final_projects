@@ -1,0 +1,7 @@
+Script started on 2026-05-09 16:39:46+05:00 
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+backend    2/2     2            2           16m
+frontend   2/2     2            2           16m
+gateway    2/2     2            2           16m
+
+Script done on 2026-05-09 16:39:46+05:00 [COMMAND_EXIT_CODE="0"]

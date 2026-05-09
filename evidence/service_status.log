@@ -1,0 +1,7 @@
+Script started on 2026-05-09 16:39:45+05:00 
+NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+backend-service    ClusterIP   10.109.163.152   <none>        5000/TCP       16m
+frontend-service   ClusterIP   10.98.102.97     <none>        80/TCP         16m
+gateway-service    NodePort    10.103.234.82    <none>        80:30080/TCP   16m
+
+Script done on 2026-05-09 16:39:45+05:00 [COMMAND_EXIT_CODE="0"]

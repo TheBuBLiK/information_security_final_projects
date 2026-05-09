@@ -1,0 +1,146 @@
+Script started on 2026-05-09 16:34:45+05:00 
+[1m[36m=================================================[0m
+[1m[36m  DDoS-Protected K8s App - Deployment Script     [0m
+[1m[36m=================================================[0m
+
+[1m[1/5] Checking prerequisites...[0m
+[32m  docker, minikube, kubectl are available.[0m
+[32m  Minikube is running.[0m
+
+[1m[2/5] Configuring Docker to use Minikube's daemon...[0m
+[32m  Docker is now using Minikube's daemon.[0m
+
+[1m[3/5] Building Docker images...[0m
+  Building gateway image (DDoS-hardened Nginx)...
+failed to fetch metadata: fork/exec /usr/local/lib/docker/cli-plugins/docker-buildx: no such file or directory
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  10.24kB
+
+
+Step 1/5 : FROM nginx:1.25-alpine
+ ---> 501d84f5d064
+Step 2/5 : RUN rm /etc/nginx/conf.d/default.conf /etc/nginx/nginx.conf
+ ---> Using cache
+ ---> 1209e27cf86b
+Step 3/5 : COPY nginx.conf /etc/nginx/nginx.conf
+ ---> e8c321bebc87
+Step 4/5 : EXPOSE 80
+ ---> Running in f62e019cf218
+ ---> Removed intermediate container f62e019cf218
+ ---> 4abfafc35f9d
+Step 5/5 : CMD ["nginx", "-g", "daemon off;"]
+ ---> Running in 92b5983c40c6
+ ---> Removed intermediate container 92b5983c40c6
+ ---> 722d2ca180ef
+Successfully built 722d2ca180ef
+Successfully tagged multi-pod-gateway:latest
+[32m  Gateway image built.[0m
+  Building backend image (Flask API)...
+failed to fetch metadata: fork/exec /usr/local/lib/docker/cli-plugins/docker-buildx: no such file or directory
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  5.632kB
+
+
+Step 1/7 : FROM python:3.12-slim
+ ---> c8e887bbf3b6
+Step 2/7 : WORKDIR /app
+ ---> Using cache
+ ---> f1b7bc493da0
+Step 3/7 : COPY requirements.txt .
+ ---> Using cache
+ ---> 9edb3b392a49
+Step 4/7 : RUN pip install --no-cache-dir -r requirements.txt
+ ---> Using cache
+ ---> d5fc107a1045
+Step 5/7 : COPY app.py .
+ ---> 7f8652d7e804
+Step 6/7 : EXPOSE 5000
+ ---> Running in b51c24286524
+ ---> Removed intermediate container b51c24286524
+ ---> 0a8e414c44ac
+Step 7/7 : CMD ["python", "app.py"]
+ ---> Running in 5e8d066305b2
+ ---> Removed intermediate container 5e8d066305b2
+ ---> 9189e8625edd
+Successfully built 9189e8625edd
+Successfully tagged multi-pod-backend:latest
+[32m  Backend image built.[0m
+  Building frontend image (React)...
+failed to fetch metadata: fork/exec /usr/local/lib/docker/cli-plugins/docker-buildx: no such file or directory
+
+DEPRECATED: The legacy builder is deprecated and will be removed in a future release.
+            Install the buildx component to build images with BuildKit:
+            https://docs.docker.com/go/buildx/
+
+Sending build context to Docker daemon  10.24kB
+
+
+Step 1/6 : FROM nginx:1.25-alpine
+ ---> 501d84f5d064
+Step 2/6 : RUN rm /etc/nginx/conf.d/default.conf
+ ---> Using cache
+ ---> 1fc88b15b94b
+Step 3/6 : COPY nginx.conf /etc/nginx/conf.d/default.conf
+ ---> Using cache
+ ---> 0a7500e54514
+Step 4/6 : COPY index.html /usr/share/nginx/html/index.html
+ ---> Using cache
+ ---> affca3cf3b0f
+Step 5/6 : EXPOSE 80
+ ---> Using cache
+ ---> 10dcbfc88cd4
+Step 6/6 : CMD ["nginx", "-g", "daemon off;"]
+ ---> Using cache
+ ---> ec4f312be1a0
+Successfully built ec4f312be1a0
+Successfully tagged multi-pod-frontend:latest
+[32m  Frontend image built.[0m
+
+[1m[4/5] Applying Kubernetes manifests...[0m
+namespace/multi-pod-app unchanged
+deployment.apps/backend unchanged
+service/backend-service unchanged
+deployment.apps/frontend unchanged
+service/frontend-service unchanged
+deployment.apps/gateway unchanged
+service/gateway-service unchanged
+[32m  All manifests applied.[0m
+
+[1m[5/5] Waiting for pods to be ready...[0m
+deployment "backend" successfully rolled out
+deployment "frontend" successfully rolled out
+deployment "gateway" successfully rolled out
+
+[1m[36m=================================================[0m
+[1m[36m  Deployment Complete!                            [0m
+[1m[36m=================================================[0m
+
+[1mPod Status:[0m
+NAME                        READY   STATUS    RESTARTS   AGE   IP           NODE       NOMINATED NODE   READINESS GATES
+backend-6b766f4979-86fpj    1/1     Running   0          11m   10.244.0.3   minikube   <none>           <none>
+backend-6b766f4979-c9bsc    1/1     Running   0          11m   10.244.0.4   minikube   <none>           <none>
+frontend-868688997d-2sswn   1/1     Running   0          11m   10.244.0.6   minikube   <none>           <none>
+frontend-868688997d-9wn5d   1/1     Running   0          11m   10.244.0.5   minikube   <none>           <none>
+gateway-744d77d874-5j4sw    1/1     Running   0          11m   10.244.0.7   minikube   <none>           <none>
+gateway-744d77d874-rdljz    1/1     Running   0          11m   10.244.0.8   minikube   <none>           <none>
+
+[1mServices:[0m
+NAME               TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+backend-service    ClusterIP   10.109.163.152   <none>        5000/TCP       11m
+frontend-service   ClusterIP   10.98.102.97     <none>        80/TCP         11m
+gateway-service    NodePort    10.103.234.82    <none>        80:30080/TCP   11m
+
+[1m[32mAccess the application at: http://192.168.49.2:30080[0m
+
+Run the DDoS simulation test:
+  ./simulate_ddos.sh http://192.168.49.2:30080
+
+Script done on 2026-05-09 16:34:57+05:00 [COMMAND_EXIT_CODE="0"]

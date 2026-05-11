@@ -148,3 +148,9 @@ kubectl -n multi-pod-app logs -l app=gateway --tail=50
 ├── teardown.sh                 # Clean up all resources
 └── simulate_ddos.sh            # DDoS attack simulation tests
 ```
+
+### Certificate
+
+```
+- amantai_akunov_certificate.jpg - course cerificate
+```

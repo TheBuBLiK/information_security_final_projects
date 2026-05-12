@@ -154,3 +154,8 @@ kubectl -n multi-pod-app logs -l app=gateway --tail=50
 ```
 - amantai_akunov_certificate.jpg - course cerificate
 ```
+
+### Demo Video demonstration
+
+https://youtu.be/fq2WIvlC0vc
+
